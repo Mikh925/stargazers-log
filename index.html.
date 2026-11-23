@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дети Олимпа — спортизированное воспитание</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --bg: #f4f7f6;
+            --card: #ffffff;
+            --text: #333;
+            --border: #ddd;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --header-bg: linear-gradient(135deg, #2c3e50, #34495e);
+        }
+        body.dark {
+            --bg: #1e2a36;
+            --card: #2a3a48;
+            --text: #e0e0e0;
+            --border: #4a5a6a;
+            --header-bg: linear-gradient(135deg, #0f1a24, #1a2a3a);
+            --shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* Шапка */
+        header {
+            background: var(--header-bg);
+            color: #fff;
+            padding: 1rem 0;
+            position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .header-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: rgba(255,255,255,0.1); border: 2px solid var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; font-weight: 900; color: var(--accent);
+        }
+        .logo h1 { font-size: 1.5rem; color: #fff; }
+        .logo h1 span { color: var(--accent); }
+        nav { display: flex; align-items: center; gap: 1.5rem; }
+        nav a {
+            color: #ecf0f1; text-decoration: none; font-weight: 500;
+            padding: 0.5rem 0; border-bottom: 2px solid transparent; transition: 0.3s;
+        }
+        nav a:hover, nav a.active { border-bottom-color: var(--accent); color: var(--accent); }
+        .theme-toggle {
+            background: none; border: none; color: #fff; font-size: 1.3rem;
+            cursor: pointer; transition: 0.3s;
+        }
+        .theme-toggle:hover { transform: rotate(30deg); }
+        .hamburger {
+            display: none; background: none; border: none; color: #fff;
+            font-size: 1.8rem; cursor: pointer;
+        }
+
+        /* Страницы */
+        .page { display: none; padding: 2rem 0; animation: fade 0.4s ease; }
+        .page.active { display: block; }
+        @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 {
+            color: var(--text); border-bottom: 3px solid var(--accent);
+            display: inline-block; padding-bottom: 5px; margin: 2rem 0 1rem;
+        }
+        h3 { color: var(--accent); margin: 1.5rem 0 0.5rem; }
+
+        /* Карточки */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .card {
+            background: var(--card); padding: 1.5rem; border-radius: 12px;
+            box-shadow: var(--shadow); transition: transform 0.3s, background 0.3s;
+        }
+        .card:hover { transform: translateY(-5px); }
+        .card h3 { margin-top: 0; }
+        .card-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+
+        /* Таблица */
+        .table-wrapper { overflow-x: auto; margin: 1.5rem 0; }
+        table {
+            width: 100%; border-collapse: collapse; background: var(--card);
+            border-radius: 10px; overflow: hidden; box-shadow: var(--shadow);
+        }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: var(--primary); color: #fff; }
+        tr:hover { background: rgba(230,126,34,0.05); }
+
+        /* График */
+        .chart-box {
+            background: var(--card); padding: 1.5rem; border-radius: 12px;
+            box-shadow: var(--shadow); margin: 1.5rem 0;
+        }
+
+        /* Форма */
+        form { background: var(--card); padding: 2rem; border-radius: 12px; box-shadow: var(--shadow); max-width: 600px; margin: 2rem 0; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.3rem; font-weight: 600; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 0.8rem; border: 1px solid var(--border);
+            border-radius: 8px; background: var(--bg); color: var(--text); font-family: inherit;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(230,126,34,0.2);
+        }
+        .btn {
+            background: var(--accent); color: #fff; border: none;
+            padding: 0.8rem 2rem; border-radius: 30px; font-size: 1rem;
+            cursor: pointer; transition: 0.3s; font-weight: 600;
+        }
+        .btn:hover { transform: scale(1.03); opacity: 0.9; }
+        .form-success { display: none; color: #27ae60; font-weight: 600; margin-top: 1rem; }
+        .form-success.show { display: block; }
+
+        /* Подвал */
+        footer {
+            background: var(--primary); color: #ecf0f1;
+            text-align: center; padding: 2rem 0; margin-top: 3rem;
+        }
+        footer a { color: var(--accent); text-decoration: none; }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .hamburger { display: block; }
+            nav {
+                display: none; width: 100%; flex-direction: column;
+                gap: 0.8rem; padding: 1rem 0; border-top: 1px solid rgba(255,255,255,0.2);
+            }
+            nav.open { display: flex; }
+            .logo h1 { font-size: 1.2rem; }
+            h2 { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ШАПКА -->
+<header>
+    <div class="container header-inner">
+        <div class="logo">
+            <div class="logo-icon">Δ</div>
+            <h1>Дети <span>Олимпа</span></h1>
+        </div>
+        <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+        <nav id="main-nav">
+            <a href="#" data-page="home" class="active">Главная</a>
+            <a href="#" data-page="about">О проекте</a>
+            <a href="#" data-page="team">Команда</a>
+            <a href="#" data-page="roles">Роли детей</a>
+            <a href="#" data-page="schedule">Расписание</a>
+            <a href="#" data-page="diary">Дневник</a>
+            <a href="#" data-page="contacts">Контакты</a>
+            <button class="theme-toggle" id="theme-toggle"><i class="fas fa-moon"></i></button>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+
+    <!-- ГЛАВНАЯ -->
+    <section id="page-home" class="page active">
+        <h2>Философия проекта</h2>
+        <p>«Дети Олимпа» — это спортизированное обучение для начальной школы, где дети 6–10 лет осваивают шесть видов спорта (плавание, хоккей, футбол, лёгкая атлетика, единоборства, шахматы) и учатся осознанному движению через сказку «Домик Руси», живую буквицу и цифровые технологии.</p>
+        <blockquote style="border-left: 5px solid var(--accent); padding-left: 20px; margin: 1.5rem 0; font-style: italic; font-size: 1.2rem;">
+            «Сегодня я лучше, чем вчера, а завтра — лучше, чем сегодня!»
+        </blockquote>
+
+        <h2>Ключевые направления</h2>
+        <div class="grid">
+            <div class="card"><div class="card-icon">🏊</div><h3>Плавание</h3><p>Учимся держаться на воде, дышать и скользить. С Екатериной Лыжиной.</p></div>
+            <div class="card"><div class="card-icon">⚽</div><h3>Футбол</h3><p>Работа с мячом, ведение и передача. С Дмитрием Вотиновым.</p></div>
+            <div class="card"><div class="card-icon">🥋</div><h3>Единоборства</h3><p>Стойки, перекаты, реакция. С Михаилом Степановым.</p></div>
+            <div class="card"><div class="card-icon">🏃</div><h3>Лёгкая атлетика</h3><p>Бег, прыжки, метание. С Антоном Пинкусом.</p></div>
+            <div class="card"><div class="card-icon">♟️</div><h3>Шахматы</h3><p>Стратегия и мышление. С Олегом Калининым.</p></div>
+            <div class="card"><div class="card-icon">⛸️</div><h3>Хоккей</h3><p>Лёд, клюшка, шайба. Учебные игры 2х1, 3х3.</p></div>
+        </div>
+
+        <h2>Динамика прогресса (демо)</h2>
+        <div class="chart-box">
+            <canvas id="progressChart" width="400" height="200"></canvas>
+        </div>
+    </section>
+
+    <!-- О ПРОЕКТЕ -->
+    <section id="page-about" class="page">
+        <h2>О проекте</h2>
+        <div class="card">
+            <p><strong>«Дети Олимпа»</strong> — пилотная модель спортизированного обучения для 1–4 классов. Цель — уйти от ранней специализации и дать детям попробовать разные виды спорта, чтобы к 4 классу они могли осознанно выбрать направление.</p>
+            <h3>Этапы:</h3>
+            <ul style="margin-left: 1.5rem;">
+                <li><strong>2026/27</strong> — апробация в 1 классе (родительский и волонтёрский вклад).</li>
+                <li><strong>2027/28</strong> — реализация в рамках гранта (2 класс).</li>
+                <li><strong>С 2028</strong> — масштабирование на 1–4 классы и другие школы.</li>
+            </ul>
+            <h3>Диагностика:</h3>
+            <p>Polar H-10, «Омега-Про», биоимпедансометрия, BlazePod, нормативы ОФП и ГТО.</p>
+        </div>
+    </section>
+
+    <!-- КОМАНДА -->
+    <section id="page-team" class="page">
+        <h2>Команда проекта</h2>
+        <div class="grid">
+            <div class="card"><h3>Петухов Д.А.</h3><p>Руководитель проекта, директор АНО «РСПК».</p></div>
+            <div class="card"><h3>Степанов М.Ю.</h3><p>Тренер по единоборствам, доцент ЧГАФКиС, МСМК по тайскому боксу.</p></div>
+            <div class="card"><h3>Вотинов Д.А.</h3><p>Тренер по футболу, тренер-преподаватель СШ «Рекорд».</p></div>
+            <div class="card"><h3>Пинкус А.Е.</h3><p>Тренер по лёгкой атлетике, МС России, магистр физической культуры.</p></div>
+            <div class="card"><h3>Калинин О.В.</h3><p>Тренер по шахматам, президент Федерации шахмат г. Чайковский.</p></div>
+            <div class="card"><h3>Туров З.О.</h3><p>Куратор проекта, тренер по муайтай СШ «Фортуна».</p></div>
+            <div class="card"><h3>Лыжина Е.А.</h3><p>Педагог по плаванию.</p></div>
+        </div>
+    </section>
+
+    <!-- РОЛИ ДЕТЕЙ -->
+    <section id="page-roles" class="page">
+        <h2>Роли детей в проекте</h2>
+        <p>Каждый ребёнок — член команды. Роли меняются каждую четверть.</p>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>№</th><th>ФИО</th><th>Роль</th><th>Задачи</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>Бекинев Матвей</td><td>🥇 Капитан «Красные»</td><td>Ведёт команду, поддерживает</td></tr>
+                    <tr><td>2</td><td>Блищ Роман</td><td>📦 Ответственный за инвентарь</td><td>Проверяет макивары, перчатки</td></tr>
+                    <tr><td>3</td><td>Бояров Роман</td><td>📸 Фотокорреспондент</td><td>Фото для «Дневника Олимпа»</td></tr>
+                    <tr><td>4</td><td>Втюрин Демид</td><td>🔥 Разминка-лидер</td><td>Показывает упражнения</td></tr>
+                    <tr><td>5</td><td>Зылев Егор</td><td>🎨 Оформитель стенда</td><td>Оформляет достижения</td></tr>
+                    <tr><td>6</td><td>Калина Елизавета</td><td>🤝 Посол дружбы</td><td>Помогает новичкам</td></tr>
+                    <tr><td>7</td><td>Килин Артём</td><td>📊 Помощник судьи</td><td>Считает баллы</td></tr>
+                    <tr><td>8</td><td>Кисилев Илья</td><td>🧠 Шахматный помощник</td><td>Расставляет фигуры</td></tr>
+                    <tr><td>9</td><td>Кобелев Семён</td><td>🔧 Техпомощник</td><td>Порядок в зале</td></tr>
+                    <tr><td>10</td><td>Кокорина Елизавета</td><td>📋 Помощник расписания</td><td>Напоминает о занятиях</td></tr>
+                    <tr><td>11</td><td>Корабейников Степан</td><td>🏃 Лидер лёгкой атлетики</td><td>Показывает технику бега</td></tr>
+                    <tr><td>12</td><td>Костенков Артём</td><td>⚽ Капитан «Жёлтые»</td><td>Ведёт команду на футболе</td></tr>
+                    <tr><td>13</td><td>Кустова Екатерина</td><td>📝 Помощник аналитика</td><td>Считает очки</td></tr>
+                    <tr><td>14</td><td>Лобачев Матвей</td><td>🥋 Порядок на ринге</td><td>Следит за очередью</td></tr>
+                    <tr><td>15</td><td>Меркушева Милана</td><td>🏆 Хранитель наклеек</td><td>Выдаёт наклейки</td></tr>
+                    <tr><td>16</td><td>Мущинкин Давид</td><td>🎵 Музыкальный помощник</td><td>Включает музыку</td></tr>
+                    <tr><td>17</td><td>Мущинкин Назар</td><td>💪 Силовая подготовка</td><td>Страхует на турнике</td></tr>
+                    <tr><td>18</td><td>Пестриков Владимир</td><td>🏊 Помощник на воде</td><td>Помогает новичкам</td></tr>
+                    <tr><td>19</td><td>Петрова Анастасия</td><td>🖌️ Художник проекта</td><td>Рисует плакаты</td></tr>
+                    <tr><td>20</td><td>Пойлова София</td><td>🧩 Помощник по тактике</td><td>Идеи для эстафет</td></tr>
+                    <tr><td>21</td><td>Русских Алексей</td><td>🎤 Голос команды</td><td>Объявляет старты</td></tr>
+                    <tr><td>22</td><td>Селянинов Артём</td><td>🏋️ Станции ОФП</td><td>Считает повторения</td></tr>
+                    <tr><td>23</td><td>Струц Милана</td><td>🗂️ Главный помощник</td><td>Ведёт посещаемость</td></tr>
+                    <tr><td>24</td><td>Сулеманова Яна</td><td>🥇 Капитан «Зелёные»</td><td>Ведёт команду</td></tr>
+                    <tr><td>25</td><td>Ташкинова Ева</td><td>🛡️ Безопасность</td><td>Следит за порядком</td></tr>
+                    <tr><td>26</td><td>Телегина Екатерина</td><td>📅 Помощник по расписанию</td><td>Ведёт календарь</td></tr>
+                    <tr><td>27</td><td>Торсунов Тимофей</td><td>🎯 Помощник на разминке</td><td>Упражнения с палкой</td></tr>
+                    <tr><td>28</td><td>Тюмин Александр</td><td>🚀 Энерджайзер</td><td>Подбадривает</td></tr>
+                    <tr><td>29</td><td>Чепкасов Тимофей</td><td>🏃 Помощник по бегу</td><td>Техника рук и ног</td></tr>
+                    <tr><td>30</td><td>Шляус Матвей</td><td>🎽 Ответственный за форму</td><td>Напоминает о форме</td></tr>
+                    <tr><td>31</td><td>Шубин Лев</td><td>🥅 Помощник на воротах</td><td>Ставит ворота</td></tr>
+                    <tr><td>32</td><td>Юркова Мия</td><td>📖 Летописец</td><td>Записывает события</td></tr>
+                    <tr><td>33</td><td>Щенина Василиса</td><td>🧮 Подсчёт очков</td><td>Считает результаты</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- РАСПИСАНИЕ -->
+    <section id="page-schedule" class="page">
+        <h2>Расписание занятий (пример)</h2>
+        <p>Актуальное расписание публикуется в группе ВК и в чате МАХ.</p>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>День</th><th>Время</th><th>Дисциплина</th><th>Тренер</th></tr></thead>
+                <tbody>
+                    <tr><td>Пн</td><td>8:00–9:00</td><td>Единоборства</td><td>Степанов М.Ю.</td></tr>
+                    <tr><td>Вт</td><td>8:00–9:00</td><td>Футбол</td><td>Вотинов Д.А.</td></tr>
+                    <tr><td>Ср</td><td>8:00–9:00</td><td>Лёгкая атлетика</td><td>Пинкус А.Е.</td></tr>
+                    <tr><td>Чт</td><td>8:00–9:00</td><td>Плавание</td><td>Лыжина Е.А.</td></tr>
+                    <tr><td>Пт</td><td>8:00–9:00</td><td>Шахматы</td><td>Калинин О.В.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ДНЕВНИК -->
+    <section id="page-diary" class="page">
+        <h2>Дневник педагогического контроля</h2>
+        <p>Учитель отслеживает развитие качеств, выполнение нормативов и наклейки.</p>
+        <div class="grid">
+            <div class="card"><h3>📊 Качества</h3><p>Сила, быстрота, выносливость, координация, гибкость.</p></div>
+            <div class="card"><h3>📏 Нормативы</h3><p>Бег 30 м, челночный бег, прыжок в длину, подтягивания, наклон, плавание.</p></div>
+            <div class="card"><h3>🏅 Наклейки</h3><p>Учёт достижений: «Самый быстрый», «Помощь другу», «Лучший аналитик».</p></div>
+            <div class="card"><h3>📅 Посещаемость</h3><p>Отметка по месяцам, участие в соревнованиях.</p></div>
+        </div>
+        <p style="margin-top: 1rem;"><em>Полная версия дневника доступна для скачивания (Excel/PDF).</em></p>
+    </section>
+
+    <!-- КОНТАКТЫ -->
+    <section id="page-contacts" class="page">
+        <h2>Свяжитесь с нами</h2>
+        <form id="contact-form">
+            <div class="form-group">
+                <label for="name">Ваше имя *</label>
+                <input type="text" id="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">E-mail *</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Сообщение *</label>
+                <textarea id="message" required></textarea>
+            </div>
+            <button type="submit" class="btn">Отправить</button>
+            <div class="form-success" id="form-success">✓ Спасибо! Ваше сообщение отправлено.</div>
+        </form>
+        <p><strong>Телефон:</strong> +7 (34241) 3-32-22<br>
+        <strong>E-mail:</strong> rspk.info<br>
+        <strong>ВК:</strong> <a href="#">vk.com/deti_olimpa</a></p>
+    </section>
+
+</main>
+
+<!-- ПОДВАЛ -->
+<footer>
+    <div class="container">
+        <p>© 2027 Проект «Дети Олимпа» | АНО «РСПК» | <a href="#">Помощь проекту</a></p>
+    </div>
+</footer>
+
+<script>
+    // Навигация
+    const links = document.querySelectorAll('nav a[data-page]');
+    const pages = document.querySelectorAll('.page');
+    links.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const page = link.dataset.page;
+            pages.forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            links.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            document.getElementById('main-nav').classList.remove('open');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+
+    // Гамбургер
+    document.getElementById('hamburger').addEventListener('click', () => {
+        document.getElementById('main-nav').classList.toggle('open');
+    });
+
+    // Тема
+    const themeBtn = document.getElementById('theme-toggle');
+    const icon = themeBtn.querySelector('i');
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark') { document.body.classList.add('dark'); icon.className = 'fas fa-sun'; }
+    themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    });
+
+    // График
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Сила', 'Быстрота', 'Выносливость', 'Координация', 'Гибкость'],
+            datasets: [
+                { label: 'Сентябрь', data: [3, 3.5, 2.8, 3.2, 2.9], backgroundColor: 'rgba(44,62,80,0.6)' },
+                { label: 'Май', data: [4.2, 4.5, 3.8, 4.3, 3.9], backgroundColor: 'rgba(230,126,34,0.7)' }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true, max: 5 } },
+            plugins: { legend: { labels: { color: getComputedStyle(document.body).getPropertyValue('--text') } } }
+        }
+    });
+
+    // Форма
+    document.getElementById('contact-form').addEventListener('submit', e => {
+        e.preventDefault();
+        document.getElementById('form-success').classList.add('show');
+        e.target.reset();
+        setTimeout(() => document.getElementById('form-success').classList.remove('show'), 5000);
+    });
+</script>
+</body>
+</html>
